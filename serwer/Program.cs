@@ -42,26 +42,34 @@ namespace serwer
         private static void getServerIPs(string DISCOVER, int portNumber)
         {
             UdpClient udpClient = new UdpClient();
+
             IPEndPoint localEP = new IPEndPoint(IPAddress.Any, portNumber);
             udpClient.ExclusiveAddressUse = false;
             udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
             udpClient.ExclusiveAddressUse = false;
             udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, portNumber));
+            Console.WriteLine(IPAddress.Any.ToString());
             udpClient.JoinMulticastGroup(multicastAddress);
 
             Byte[] data = null;
-
-            while ((data = udpClient.Receive(ref localEP)) != null)
+            try
             {
-                 Console.WriteLine("mam serwer");
-                 string strData = Encoding.ASCII.GetString(data);
-                 serverList.Add(strData);
-                 data = null;
+                while (udpClient.Available > 0)
+                {
+                    data = udpClient.Receive(ref localEP);
+                    Console.WriteLine("mam serwer");
+                    string strData = Encoding.ASCII.GetString(data);
+                    serverList.Add(strData);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine(ex.ToString());
             }
 
-            
-          
+
         }
     }
 }
